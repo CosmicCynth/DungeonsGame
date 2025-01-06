@@ -3,9 +3,11 @@ function love.load()
     love.graphics.setDefaultFilter("nearest")
     wf = require "libaries/windfield"
     world = wf.newWorld()
-
     sti = require "libaries/sti"
     Map1 = sti("maps/Dungeon1.lua")
+    font = love.graphics.newFont("font/gamefont.ttf", 24)
+    love.graphics.setFont(font)
+
 
     --Player
 
@@ -16,7 +18,7 @@ function love.load()
     player.x = player.collider:getX()
     player.y = player.collider:getY()
     player.angle = 0
-    player.wave = 2
+    player.wave = 1
     player.bulletTimer = 0
     player.canFire = true
 
@@ -42,6 +44,9 @@ function love.load()
         SilverKnight.sprite = love.graphics.newImage("sprites/Enemy1.png")
         SilverKnight.x = x
         SilverKnight.y = y
+        SilverKnight.health = 2
+        SilverKnight.speed = 200
+
         table.insert(enemies,SilverKnight)
     end
 
@@ -50,6 +55,8 @@ function love.load()
         GoldKnight.sprite = love.graphics.newImage("sprites/Enemy2.png")
         GoldKnight.x = x
         GoldKnight.y = y
+        GoldKnight.health = 4
+        GoldKnight.speed = 300
         table.insert(enemies,GoldKnight)
     end
 
@@ -57,12 +64,6 @@ function love.load()
     if player.wave == 1 then
         silverKnightSpawner(sprite,500,230)
         enemies.remaning = 1
-    elseif player.wave == 2 then
-        silverKnightSpawner(sprite,500,230)
-        silverKnightSpawner(sprite,200,100)
-        enemies.remaning = 2
-    elseif player.wave == 3 then
-        goldKnightSpawner(sprite,600,100)
     end
 
     bullets = {}
@@ -138,7 +139,6 @@ function love.update(dt)
         player.angle = 3.14
     end
 
-    --
 
 
     for i = #bullets, 1, -1 do -- Loop backwards to avoid skipping elements when removing
@@ -155,15 +155,38 @@ function love.update(dt)
             Bullet.x = Bullet.x + Bullet.speed * dt
         end
 
+
         -- Check if the bullet is offscreen
         local screenWidth = love.graphics.getWidth()
         local screenHeight = love.graphics.getHeight()
 
         if Bullet.x < 0 or Bullet.x > screenWidth or Bullet.y < 0 or Bullet.y > screenHeight then
             table.remove(bullets, i) -- Remove the bullet if offscreen
+        else
+            -- Check collision with enemies
+            for j = #enemies, 1, -1 do -- Loop backwards through enemies
+                local enemy = enemies[j]
+
+                -- Simple collision detection (circle for bullet, rectangle for enemy)
+                if Bullet.x > enemy.x and Bullet.x < enemy.x + 64 and Bullet.y > enemy.y and Bullet.y < enemy.y + 64 then
+                    -- Bullet hit the enemy
+                    enemy.health = enemy.health - 1 
+                    table.remove(bullets, i) 
+                    if enemy.health <= 0 then
+                        table.remove(enemies, j) 
+                        enemies.remaning = enemies.remaning - 1 
+                    end
+                    break -- Stop checking other enemies for this bullet
+                end
+            end
         end
     end
-
+    
+    if enemies.remaning == 0 and player.wave == 1 then
+        waveSpawner(2)
+    elseif enemies.remaning == 0 and player.wave == 2 then
+        waveSpawner(3)
+    end
     --Drawing world hitboxes
     world:update(dt)
 end
@@ -178,6 +201,20 @@ function love.draw()
     for i, Bullet in ipairs(bullets) do
         love.graphics.draw(Bullet.sprite,Bullet.x, Bullet.y,nil,nil,nil,8,8) 
     end
-    love.graphics.print("Enemies remaning: "..enemies.remaning.."Timer: "..player.bulletTimer)
+    love.graphics.print("Wave: "..player.wave.."\n Enemies remaning: "..enemies.remaning)
+
     world:draw()
+end
+
+function waveSpawner(wave)
+    if wave == 2 then
+        silverKnightSpawner(sprite,500,230)
+        silverKnightSpawner(sprite,200,100)
+        enemies.remaning = 2
+        player.wave = 2
+    elseif wave == 3 then
+        goldKnightSpawner(sprite,600,100)
+        enemies.remaning = 1
+        player.wave = 3
+    end
 end
