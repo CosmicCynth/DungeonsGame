@@ -16,7 +16,7 @@ function love.load()
     player.x = player.collider:getX()
     player.y = player.collider:getY()
     player.angle = 0
-    player.wave = 1
+    player.wave = 2
 
     --Borders 
 
@@ -33,7 +33,7 @@ function love.load()
     --Enemies (We can add/change stats as we please)
 
     enemies = {}
-    enemies.remaning = 1
+    enemies.remaning = 0
 
     function silverKnightSpawner(sprite,x,y)
         SilverKnight = {}
@@ -58,6 +58,9 @@ function love.load()
     elseif player.wave == 2 then
         silverKnightSpawner(sprite,500,230)
         silverKnightSpawner(sprite,200,100)
+        enemies.remaning = 2
+    elseif player.wave == 3 then
+        goldKnightSpawner(sprite,600,100)
     end
 
     bullets = {}
