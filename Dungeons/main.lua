@@ -54,6 +54,7 @@ function love.load()
 
     if player.wave == 1 then
         silverKnightSpawner(sprite,500,230)
+        enemies.remaning = 1
     elseif player.wave == 2 then
         silverKnightSpawner(sprite,500,230)
         silverKnightSpawner(sprite,200,100)
@@ -83,19 +84,15 @@ function love.update(dt)
     if love.keyboard.isDown("d") then
         vx = player.speed
         player.angle = 3.14
-    end
-
-    if love.keyboard.isDown("a") then
+    elseif love.keyboard.isDown("a") then
         vx = player.speed * -1
         player.angle = 0
-    end 
+    end
 
     if love.keyboard.isDown("w") then
         vy = player.speed * -1
         player.angle = 1.57
-    end
-
-    if love.keyboard.isDown("s") then
+    elseif love.keyboard.isDown("s") then
         vy = player.speed
         player.angle = 4.71
     end
@@ -110,12 +107,16 @@ function love.update(dt)
     --Drawing bullet
     if love.keyboard.isDown("up") then
         createBullet(sprite,player.x,player.y,"up")
+        player.angle = 1.57
     elseif love.keyboard.isDown("down") then
         createBullet(sprite,player.x,player.y,"down")
+        player.angle = 4.71
     elseif love.keyboard.isDown("left") then
         createBullet(sprite,player.x,player.y,"left")
+        player.angle = 0
     elseif love.keyboard.isDown("right") then
         createBullet(sprite,player.x,player.y,"right")
+        player.angle = 3.14
     end
 
 
@@ -142,7 +143,8 @@ function love.draw()
     end
 
     for i, Bullet in ipairs(bullets) do
-        love.graphics.draw(Bullet.sprite,Bullet.x, Bullet.y) 
+        love.graphics.draw(Bullet.sprite,Bullet.x, Bullet.y,nil,nil,nil,8,8) 
     end
+    love.graphics.print("Enemies remaning: "..enemies.remaning)
     world:draw()
 end
