@@ -17,6 +17,8 @@ function love.load()
     player.y = player.collider:getY()
     player.angle = 0
     player.wave = 2
+    player.bulletTimer = 0
+    player.canFire = true
 
     --Borders 
 
@@ -106,19 +108,33 @@ function love.update(dt)
     player.x = player.collider:getX()
     player.y = player.collider:getY()
 
+    --Timer for shooting
+    local delay = 0.25
+    if player.canFire == false then
+        player.bulletTimer = player.bulletTimer + dt
+    end
+
+    if player.bulletTimer >= delay then
+        player.canFire = true
+        player.bulletTimer = 0
+    end
 
     --Drawing bullet
-    if love.keyboard.isDown("up") then
+    if love.keyboard.isDown("up") and player.canFire == true then
         createBullet(sprite,player.x,player.y,"up")
+        player.canFire = false
         player.angle = 1.57
-    elseif love.keyboard.isDown("down") then
+    elseif love.keyboard.isDown("down") and player.canFire == true then
         createBullet(sprite,player.x,player.y,"down")
+        player.canFire = false
         player.angle = 4.71
-    elseif love.keyboard.isDown("left") then
+    elseif love.keyboard.isDown("left") and player.canFire == true then
         createBullet(sprite,player.x,player.y,"left")
+        player.canFire = false
         player.angle = 0
-    elseif love.keyboard.isDown("right") then
+    elseif love.keyboard.isDown("right") and player.canFire == true then
         createBullet(sprite,player.x,player.y,"right")
+        player.canFire = false
         player.angle = 3.14
     end
 
@@ -148,6 +164,6 @@ function love.draw()
     for i, Bullet in ipairs(bullets) do
         love.graphics.draw(Bullet.sprite,Bullet.x, Bullet.y,nil,nil,nil,8,8) 
     end
-    love.graphics.print("Enemies remaning: "..enemies.remaning)
+    love.graphics.print("Enemies remaning: "..enemies.remaning.."Timer: "..player.bulletTimer)
     world:draw()
 end
