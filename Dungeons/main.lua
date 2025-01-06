@@ -141,7 +141,10 @@ function love.update(dt)
     --
 
 
-    for i, Bullet in ipairs(bullets) do
+    for i = #bullets, 1, -1 do -- Loop backwards to avoid skipping elements when removing
+        local Bullet = bullets[i]
+
+        -- Move the bullet based on its direction
         if Bullet.direction == "up" then
             Bullet.y = Bullet.y - Bullet.speed * dt
         elseif Bullet.direction == "down" then
@@ -151,11 +154,16 @@ function love.update(dt)
         elseif Bullet.direction == "right" then
             Bullet.x = Bullet.x + Bullet.speed * dt
         end
+
+        -- Check if the bullet is offscreen
+        local screenWidth = love.graphics.getWidth()
+        local screenHeight = love.graphics.getHeight()
+
+        if Bullet.x < 0 or Bullet.x > screenWidth or Bullet.y < 0 or Bullet.y > screenHeight then
+            table.remove(bullets, i) -- Remove the bullet if offscreen
+        end
     end
 
-    if  > 1000 and #bullets > 0 then
-        table.remove(bullets,Bullet)
-    end
     --Drawing world hitboxes
     world:update(dt)
 end
