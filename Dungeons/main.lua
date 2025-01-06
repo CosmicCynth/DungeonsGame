@@ -138,6 +138,8 @@ function love.update(dt)
         player.angle = 3.14
     end
 
+    --
+
 
     for i, Bullet in ipairs(bullets) do
         if Bullet.direction == "up" then
@@ -149,6 +151,10 @@ function love.update(dt)
         elseif Bullet.direction == "right" then
             Bullet.x = Bullet.x + Bullet.speed * dt
         end
+    end
+
+    if  > 1000 and #bullets > 0 then
+        table.remove(bullets,Bullet)
     end
     --Drawing world hitboxes
     world:update(dt)
