@@ -44,8 +44,9 @@ function love.load()
         SilverKnight.sprite = love.graphics.newImage("sprites/Enemy1.png")
         SilverKnight.x = x
         SilverKnight.y = y
-        SilverKnight.health = 4
-        SilverKnight.speed = 200
+        SilverKnight.health = player.wave / 2 + 2  
+        SilverKnight.speed = 75
+        SilverKnight.direction = {x = 0, y = 0}
 
         table.insert(enemies,SilverKnight)
     end
@@ -55,8 +56,9 @@ function love.load()
         GoldKnight.sprite = love.graphics.newImage("sprites/Enemy2.png")
         GoldKnight.x = x
         GoldKnight.y = y
-        GoldKnight.health = 6
-        GoldKnight.speed = 300
+        GoldKnight.health = player.wave / 2 + 3  
+        GoldKnight.speed = 125
+        GoldKnight.direction = {x = 0, y = 0}
         table.insert(enemies,GoldKnight)
     end
 
@@ -124,19 +126,15 @@ function love.update(dt)
     if love.keyboard.isDown("up") and player.canFire == true then
         createBullet(sprite,player.x,player.y,"up")
         player.canFire = false
-        player.angle = 1.57
     elseif love.keyboard.isDown("down") and player.canFire == true then
         createBullet(sprite,player.x,player.y,"down")
         player.canFire = false
-        player.angle = 4.71
     elseif love.keyboard.isDown("left") and player.canFire == true then
         createBullet(sprite,player.x,player.y,"left")
         player.canFire = false
-        player.angle = 0
     elseif love.keyboard.isDown("right") and player.canFire == true then
         createBullet(sprite,player.x,player.y,"right")
         player.canFire = false
-        player.angle = 3.14
     end
 
 
@@ -180,7 +178,31 @@ function love.update(dt)
                 end
             end
         end
+    
     end
+
+    for i, enemy in ipairs(enemies) do
+        -- Calculate direction vector
+        local dx = player.x - 16 - enemy.x
+        local dy = player.y - 16 - enemy.y
+        local magnitude = math.sqrt(dx^2 + dy^2)
+
+        -- Normalize direction vector
+        if magnitude > 0 then
+            enemy.direction.x = dx / magnitude
+            enemy.direction.y = dy / magnitude
+        else
+            enemy.direction.x = 0
+            enemy.direction.y = 0
+        end
+
+        -- Move enemy towards the player
+        enemy.x = enemy.x + enemy.direction.x * enemy.speed * dt
+        enemy.y = enemy.y + enemy.direction.y * enemy.speed * dt
+    end
+
+
+
     
     if enemies.remaning == 0 and player.wave == 1 then
         waveSpawner(2)
