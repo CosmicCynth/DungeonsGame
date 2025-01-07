@@ -18,7 +18,7 @@ function love.load()
     player.x = player.collider:getX()
     player.y = player.collider:getY()
     player.angle = 0
-    player.wave = 1
+    player.wave = 4
     player.bulletTimer = 0
     player.canFire = true
 
@@ -44,7 +44,7 @@ function love.load()
         SilverKnight.sprite = love.graphics.newImage("sprites/Enemy1.png")
         SilverKnight.x = x
         SilverKnight.y = y
-        SilverKnight.health = 2
+        SilverKnight.health = 4
         SilverKnight.speed = 200
 
         table.insert(enemies,SilverKnight)
@@ -55,14 +55,14 @@ function love.load()
         GoldKnight.sprite = love.graphics.newImage("sprites/Enemy2.png")
         GoldKnight.x = x
         GoldKnight.y = y
-        GoldKnight.health = 4
+        GoldKnight.health = 6
         GoldKnight.speed = 300
         table.insert(enemies,GoldKnight)
     end
 
 
     if player.wave == 1 then
-        silverKnightSpawner(sprite,500,230)
+        silverKnightSpawner(sprite,1000,320)
         enemies.remaning = 1
     end
 
@@ -167,7 +167,7 @@ function love.update(dt)
             for j = #enemies, 1, -1 do -- Loop backwards through enemies
                 local enemy = enemies[j]
 
-                -- Simple collision detection (circle for bullet, rectangle for enemy)
+                -- Simple collision detection
                 if Bullet.x > enemy.x and Bullet.x < enemy.x + 64 and Bullet.y > enemy.y and Bullet.y < enemy.y + 64 then
                     -- Bullet hit the enemy
                     enemy.health = enemy.health - 1 
@@ -186,6 +186,12 @@ function love.update(dt)
         waveSpawner(2)
     elseif enemies.remaning == 0 and player.wave == 2 then
         waveSpawner(3)
+    elseif enemies.remaning == 0 and player.wave == 3 then
+        waveSpawner(4)
+    elseif enemies.remaning == 0 and player.wave == 4 then
+        waveSpawner(5)
+    elseif enemies.remaning == 0 and player.wave == 5 then
+        waveSpawner(6)
     end
     --Drawing world hitboxes
     world:update(dt)
@@ -201,20 +207,34 @@ function love.draw()
     for i, Bullet in ipairs(bullets) do
         love.graphics.draw(Bullet.sprite,Bullet.x, Bullet.y,nil,nil,nil,8,8) 
     end
-    love.graphics.print("Wave: "..player.wave.."\n Enemies remaning: "..enemies.remaning)
+    love.graphics.print("Wave: "..player.wave.."\nEnemies remaning: "..enemies.remaning)
 
     world:draw()
 end
 
 function waveSpawner(wave)
     if wave == 2 then
-        silverKnightSpawner(sprite,500,230)
-        silverKnightSpawner(sprite,200,100)
+        silverKnightSpawner(sprite,1100,50)
+        silverKnightSpawner(sprite,1100,600)
         enemies.remaning = 2
         player.wave = 2
     elseif wave == 3 then
         goldKnightSpawner(sprite,600,100)
         enemies.remaning = 1
         player.wave = 3
+    elseif wave == 4 then
+        silverKnightSpawner(sprite,10,320)
+        silverKnightSpawner(sprite,1210,320)
+        goldKnightSpawner(sprite,600,650)
+        enemies.remaning = 3
+        player.wave = 4
+    elseif wave == 5 then
+        goldKnightSpawner(sprite,600,650)
+        goldKnightSpawner(sprite,700,0)
+        silverKnightSpawner(sprite, 100,200)
+        silverKnightSpawner(sprite, 1180,200)
+        silverKnightSpawner(sprite, 500,300)
+        enemies.remaning = 5
+        player.wave = 5
     end
 end
